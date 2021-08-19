@@ -83,6 +83,12 @@ macro_rules! map_callback_return_to_option_ms {
                 $callback(value);
                 None
             }) as $output_type<$cb_type>
+        } else if t_type == std::any::TypeId::of::<Box<Ms>>() {
+            $output_type::new(move |value| {
+                (&mut Some($callback(value)) as &mut dyn std::any::Any)
+                    .downcast_mut::<Option<Ms>>()
+                    .and_then(Option::take)
+            })
         } else {
             panic!($panic_text);
         }
